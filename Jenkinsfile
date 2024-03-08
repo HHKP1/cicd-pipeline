@@ -16,6 +16,17 @@ pipeline {
                 }
             }
         }
+        stage ("lint Dockerfile...") {
+            agent {
+                docker {
+                    image 'hadolint/hadolint:latest-debian'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'hadolint Dockerfile | tee hadolint_lint.txt'
+            }
+        }
         stage('Build...') {
             steps {
                 sh "ls -la && pwd"
