@@ -83,4 +83,10 @@ pipeline {
             }
         }
     }
+    post {
+        success {
+            archiveArtifacts 'hadolint_lint.txt'
+            archiveArtifacts 'vulnerabilities.txt'
+        }
+    }
 }
