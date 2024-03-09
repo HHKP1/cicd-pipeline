@@ -74,5 +74,13 @@ pipeline {
                 }
             }
         }
+        stage('Scanning for vulnerabilities...'){
+            steps {
+                script{
+                    def vulnerabilities = sh(script: "trivy image --exit-code 0 --severity HIGH,MEDIUM,LOW --no-progress hhkp/node${params.BRANCH}:${imageTag}", returnStdout: true).trim()
+                    writeFile file: 'vulnerabilities.txt', text: vulnerabilities
+                }
+            }
+        }
     }
 }
