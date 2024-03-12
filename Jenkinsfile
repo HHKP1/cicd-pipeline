@@ -41,11 +41,18 @@ pipeline {
         }
         stage('Docker build...') {
             steps {
-                // Login to Docker Hub using access token
-                withCredentials([string(credentialsId: 'docker-access-token', variable: 'DOCKER_ACCESS_TOKEN')]) {
-                    sh "echo ${DOCKER_ACCESS_TOKEN} | docker login --username hhkp --password-stdin"
-                    sh "docker build -t hhkp/node${env.BRANCH_NAME}:${env.imageTag} ."
-                    sh "docker push hhkp/node${env.BRANCH_NAME}:${env.imageTag}"
+                script {
+                    if (env.BRANCH_NAME == 'main') {
+                        sh "mv src/red_logo.svg src/logo.svg"
+                    } else if (env.BRANCH_NAME == 'dev' ) {
+                        sh "mv src/orange_logo.svg src/logo.svg"
+                    }
+                    // Login to Docker Hub using access token
+                    withCredentials([string(credentialsId: 'docker-access-token', variable: 'DOCKER_ACCESS_TOKEN')]) {
+                        sh "echo ${DOCKER_ACCESS_TOKEN} | docker login --username hhkp --password-stdin"
+                        sh "docker build -t hhkp/node${env.BRANCH_NAME}:${env.imageTag} ."
+                        sh "docker push hhkp/node${env.BRANCH_NAME}:${env.imageTag}"
+                    }
                 }
             }
         }
