@@ -8,6 +8,17 @@ pipeline {
         string(name: 'imageTag', defaultValue: 'v1.0', description: 'Specify the tag of the Docker image')
     }
     stages {
+        stage('Extract Branch Name...') {
+            steps {
+                script {
+                    def payload = readJSON text: env.PAYLOAD
+                    def branchName = payload.ref.split('/').last()
+                    // Set the branch name as the value for the ENV parameter
+                    params.ENV = branchName
+                    sh "echo ${branchName}"
+                }
+            }
+        }
         stage('Checkout SCM...') {
             steps {
                 // Checkout the multibranch Git repository
