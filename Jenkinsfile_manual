@@ -1,4 +1,4 @@
-// Multibranch Pipeline
+// Manual Pipeline
 pipeline {
     agent any
 
