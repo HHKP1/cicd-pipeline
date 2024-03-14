@@ -3,6 +3,10 @@ pipeline {
     agent any
 
     tools { nodejs "node" }
+    environment {
+        BRANCH_NAME = "${GIT_BRANCH.split("/")[1]}"
+        sh "echo ${BRANCH_NAME}"
+    }
     parameters {
         choice(name: 'BRANCH', choices: ['main', 'dev'], description: 'Select the target BRANCH')
         string(name: 'imageTag', defaultValue: 'v1.0', description: 'Specify the tag of the Docker image')
@@ -12,11 +16,13 @@ pipeline {
             steps {
                 script {
                     def branchName = env.GIT_BRANCH
+                    sh "echo ${branchName}"
                     // Remove 'refs/heads/' prefix to get the clean branch name
                     branchName = branchName.replaceFirst('refs/heads/', '')
                     // Set the branch name as the value for the ENV parameter
-                    params.ENV = branchName
+                    params.BRANCH = branchName
                     sh "echo ${branchName}"
+                    sh "echo $?"
                 }
             }
         }
