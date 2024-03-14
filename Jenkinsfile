@@ -1,14 +1,22 @@
-// Multibranch Pipeline
+// Manual Pipeline
 pipeline {
     agent any
 
     tools { nodejs "node" }
+    environment {
+        BRANCH_NAME = "${GIT_BRANCH.split("/")[1]}"
+    }
+    parameters {
+        choice(name: 'BRANCH', choices: ['main', 'dev'], description: 'Select the target BRANCH')
+        string(name: 'imageTag', defaultValue: 'v1.0', description: 'Specify the tag of the Docker image')
+    }
     stages {
         stage('Checkout SCM...') {
             steps {
                 // Checkout the multibranch Git repository
                 script {
                     checkout([$class: 'GitSCM', branches: [[name: 'main'], [name: 'dev']], userRemoteConfigs: [[url: 'https://github.com/HHKP1/cicd-pipeline.git']]])
+                    sh "echo ${env.BRANCH_NAME}"
                 }
             }
         }
