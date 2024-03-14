@@ -8,11 +8,12 @@ pipeline {
         string(name: 'imageTag', defaultValue: 'v1.0', description: 'Specify the tag of the Docker image')
     }
     stages {
-        stage('Extract Branch Name...') {
+        stage('Extract Branch Name') {
             steps {
                 script {
-                    def payload = readJSON text: env.PAYLOAD
-                    def branchName = payload.ref.split('/').last()
+                    def branchName = env.GIT_BRANCH
+                    // Remove 'refs/heads/' prefix to get the clean branch name
+                    branchName = branchName.replaceFirst('refs/heads/', '')
                     // Set the branch name as the value for the ENV parameter
                     params.ENV = branchName
                     sh "echo ${branchName}"
@@ -24,11 +25,6 @@ pipeline {
                 // Checkout the multibranch Git repository
                 script {
                     checkout([$class: 'GitSCM', branches: [[name: 'main'], [name: 'dev']], userRemoteConfigs: [[url: 'https://github.com/HHKP1/cicd-pipeline.git']]])
-                    def payload = readJSON text: env.PAYLOAD
-                    def branchName = payload.ref.split('/').last()
-                    // Set the branch name as the value for the ENV parameter
-                    params.ENV = branchName
-                    sh "echo ${branchName}"
                 }
             }
         }
