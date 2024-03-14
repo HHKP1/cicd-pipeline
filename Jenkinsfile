@@ -11,7 +11,7 @@ pipeline {
             steps {
                 // Checkout the multibranch Git repository
                 script {
-                    checkout([$class: 'GitSCM', branches: [[name: 'main'], [name: 'dev']], userRemoteConfigs: [[url: 'https://github.com/HHKP1/cicd-pipeline.git']]])
+                    checkout([$class: 'GitSCM', branch: [name: 'main'], userRemoteConfigs: [[url: 'https://github.com/HHKP1/cicd-pipeline.git']]])
                     sh "echo ${env.BRANCH_NAME}"
                 }
             }
