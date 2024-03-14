@@ -3,9 +3,6 @@ pipeline {
     agent any
 
     tools { nodejs "node" }
-    environment {
-        BRANCH_NAME = "${GIT_BRANCH.split("/")[1]}"
-    }
     stages {
         stage('Checkout SCM...') {
             steps {
