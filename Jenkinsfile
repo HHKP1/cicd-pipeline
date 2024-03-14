@@ -3,6 +3,9 @@ pipeline {
     agent any
 
     tools { nodejs "node" }
+    environment {
+        imageTag="v1.0"
+    }
     stages {
         stage('Checkout SCM...') {
             steps {
@@ -41,19 +44,19 @@ pipeline {
                 // Login to Docker Hub using access token
                 withCredentials([string(credentialsId: 'docker-access-token', variable: 'DOCKER_ACCESS_TOKEN')]) {
                     sh "echo ${DOCKER_ACCESS_TOKEN} | docker login --username hhkp --password-stdin"
-                    sh "docker build -t hhkp/node${params.BRANCH}:${params.imageTag} ."
-                    sh "docker push hhkp/node${params.BRANCH}:${params.imageTag}"
+                    sh "docker build -t hhkp/node${env.BRANCH_NAME}:${env.imageTag} ."
+                    sh "docker push hhkp/node${env.BRANCH_NAME}:${env.imageTag}"
                 }
             }
         }
         stage('Deploy...') {
             steps {
                 script {
-                    def dockerImage = "nodemain:${params.imageTag}"
+                    def dockerImage = "nodemain:${env.imageTag}"
                     def containerName = "main_container"
                     
-                    if (params.BRANCH == 'dev') {
-                        dockerImage = "nodedev:${params.imageTag}"
+                    if (env.BRANCH_NAME == 'dev') {
+                        dockerImage = "nodedev:${env.imageTag}"
                         containerName = "dev_container"
                     }
                     
@@ -62,7 +65,7 @@ pipeline {
                     sh "docker rm ${containerName} || true"
                     
                     // Run the application in Docker container
-                    if (params.BRANCH == 'dev') {
+                    if (env.BRANCH_NAME == 'dev') {
                         sh "docker run -d --expose 3001 -p 3001:3000 --name ${containerName} hhkp/${dockerImage}"
                     } else {
                         sh "docker run -d --expose 3000 -p 3000:3000 --name ${containerName} hhkp/${dockerImage}"
@@ -73,7 +76,7 @@ pipeline {
         stage('Scanning for vulnerabilities...'){
             steps {
                 script{
-                    def vulnerabilities = sh(script: "trivy image --exit-code 0 --severity HIGH,MEDIUM,LOW --no-progress hhkp/node${params.BRANCH}:${imageTag}", returnStdout: true).trim()
+                    def vulnerabilities = sh(script: "trivy image --exit-code 0 --severity HIGH,MEDIUM,LOW --no-progress hhkp/node${env.BRANCH_NAME}:${imageTag}", returnStdout: true).trim()
                     writeFile file: 'vulnerabilities.txt', text: vulnerabilities
                 }
             }
