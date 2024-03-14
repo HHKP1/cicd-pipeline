@@ -1,13 +1,8 @@
-// Manual Pipeline
+// Multibranch Pipeline
 pipeline {
     agent any
 
     tools { nodejs "node" }
-
-    parameters {
-        choice(name: 'BRANCH', choices: ['main', 'dev'], description: 'Select the target BRANCH')
-        string(name: 'imageTag', defaultValue: 'v1.0', description: 'Specify the tag of the Docker image')
-    }
     stages {
         stage('Checkout SCM...') {
             steps {
