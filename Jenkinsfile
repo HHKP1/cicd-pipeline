@@ -13,6 +13,11 @@ pipeline {
                 // Checkout the multibranch Git repository
                 script {
                     checkout([$class: 'GitSCM', branches: [[name: 'main'], [name: 'dev']], userRemoteConfigs: [[url: 'https://github.com/HHKP1/cicd-pipeline.git']]])
+                    def payload = readJSON text: env.PAYLOAD
+                    def branchName = payload.ref.split('/').last()
+                    // Set the branch name as the value for the ENV parameter
+                    params.ENV = branchName
+                    sh "echo ${branchName}"
                 }
             }
         }
