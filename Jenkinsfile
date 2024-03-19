@@ -12,7 +12,7 @@ pipeline {
             steps {
                 // Checkout the multibranch Git repository
                 script {
-                    checkoutStage('https://github.com/HHKP1/cicd-pipeline.git', ['main', 'dev'])
+                    checkoutStep('https://github.com/HHKP1/cicd-pipeline.git', ['main', 'dev'])
                 }
             }
         }
