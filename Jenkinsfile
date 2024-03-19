@@ -5,6 +5,7 @@ pipeline {
 
     tools { nodejs "node" }
     environment {
+        registry="hhkp"
         imageTag="v1.0"
     }
     stages {
@@ -30,15 +31,16 @@ pipeline {
         }
         stage('Build...') {
             steps {
-                sh "ls -la && pwd"
-                sh 'npm config ls'
-                sh 'npm install'
+                script {
+                    buildStep(this)
+                }
             }
         }
         stage('Test...') {
             steps {
-                sh 'npm config ls'
-                sh 'npm test'
+                script {
+                    testStep(this)
+                }
             }
         }
         stage('Docker build...') {
@@ -46,14 +48,10 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == 'main') {
                         sh "mv src/red_logo.svg src/logo.svg"
+                        dockerBuildStep(this, 'hhkp', 'main_container', 'Dockerfile.tpl', 'nodemain', 'v1.0', '7.8.0-alpine', 3000)
                     } else if (env.BRANCH_NAME == 'dev' ) {
                         sh "mv src/orange_logo.svg src/logo.svg"
-                    }
-                    // Login to Docker Hub using access token
-                    withCredentials([string(credentialsId: 'docker-access-token', variable: 'DOCKER_ACCESS_TOKEN')]) {
-                        sh "echo ${DOCKER_ACCESS_TOKEN} | docker login --username hhkp --password-stdin"
-                        sh "docker build -t hhkp/node${env.BRANCH_NAME}:${env.imageTag} ."
-                        sh "docker push hhkp/node${env.BRANCH_NAME}:${env.imageTag}"
+                        dockerBuildStep(this, 'hhkp', 'dev_container', 'Dockerfile.tpl', 'nodedev', 'v1.0', '7.8.0-alpine', 3000)
                     }
                 }
             }
@@ -61,24 +59,29 @@ pipeline {
         stage('Deploy...') {
             steps {
                 script {
-                    def dockerImage = "nodemain:${env.imageTag}"
-                    def containerName = "main_container"
-                    
-                    if (env.BRANCH_NAME == 'dev') {
-                        dockerImage = "nodedev:${env.imageTag}"
-                        containerName = "dev_container"
+                    if (env.BRANCH_NAME == 'main') {
+                        deployStep(this, 'hhkp', 'nodemain', 'v1.0', 'main_container', 3000, 3000)
+                    } else if (env.BRANCH_NAME == 'dev' ) {
+                        deployStep(this, 'hhkp', 'nodedev', 'v1.0', 'dev_container', 3001, 3000)
                     }
+                    // def dockerImage = "nodemain:${env.imageTag}"
+                    // def containerName = "main_container"
                     
-                    // Stop and remove existing container
-                    sh "docker stop ${containerName} || true"
-                    sh "docker rm ${containerName} || true"
+                    // if (env.BRANCH_NAME == 'dev') {
+                    //     dockerImage = "nodedev:${env.imageTag}"
+                    //     containerName = "dev_container"
+                    // }
                     
-                    // Run the application in Docker container
-                    if (env.BRANCH_NAME == 'dev') {
-                        sh "docker run -d --expose 3001 -p 3001:3000 --name ${containerName} hhkp/${dockerImage}"
-                    } else {
-                        sh "docker run -d --expose 3000 -p 3000:3000 --name ${containerName} hhkp/${dockerImage}"
-                    }
+                    // // Stop and remove existing container
+                    // sh "docker stop ${containerName} || true"
+                    // sh "docker rm ${containerName} || true"
+                    
+                    // // Run the application in Docker container
+                    // if (env.BRANCH_NAME == 'dev') {
+                    //     sh "docker run -d --expose 3001 -p 3001:3000 --name ${containerName} hhkp/${dockerImage}"
+                    // } else {
+                    //     sh "docker run -d --expose 3000 -p 3000:3000 --name ${containerName} hhkp/${dockerImage}"
+                    // }
                 }
             }
         }
