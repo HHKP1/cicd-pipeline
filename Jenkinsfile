@@ -1,4 +1,5 @@
 // Multibranch Pipeline
+@Library('jenkins-github-deploy-lib@main')
 pipeline {
     agent any
 
@@ -11,7 +12,7 @@ pipeline {
             steps {
                 // Checkout the multibranch Git repository
                 script {
-                    checkout([$class: 'GitSCM', branches: [[name: 'main'], [name: 'dev']], userRemoteConfigs: [[url: 'https://github.com/HHKP1/cicd-pipeline.git']]])
+                    checkoutStage('https://github.com/HHKP1/cicd-pipeline.git', ['main', 'dev'])
                 }
             }
         }
