@@ -1,5 +1,5 @@
 // Multibranch Pipeline
-@Library('jenkins-github-deploy-lib@main')
+@Library('jenkins-github-deploy-lib@main') _
 pipeline {
     agent any
 
