@@ -31,14 +31,14 @@ pipeline {
         stage('Build...') {
             steps {
                 script {
-                    buildStep()
+                    buildStep(this)
                 }
             }
         }
         stage('Test...') {
             steps {
                 script {
-                    testStep()
+                    testStep(this)
                 }
             }
         }
