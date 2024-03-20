@@ -48,10 +48,10 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == 'main') {
                         sh "mv src/red_logo.svg src/logo.svg"
-                        dockerBuildStep(this, env: env.registry, 'Dockerfile.tpl', 'nodemain', 'v1.0', '7.8.0-alpine', 3000)
+                        dockerBuildStep(this, 'hhkp', 'Dockerfile.tpl', 'nodemain', 'v1.0', '7.8.0-alpine', 3000)
                     } else if (env.BRANCH_NAME == 'dev' ) {
                         sh "mv src/orange_logo.svg src/logo.svg"
-                        dockerBuildStep(this, env: env.registry, 'Dockerfile.tpl', 'nodedev', 'v1.0', '7.8.0-alpine', 3001)
+                        dockerBuildStep(this, 'hhkp', 'Dockerfile.tpl', 'nodedev', 'v1.0', '7.8.0-alpine', 3001)
                     }
                     // // Login to Docker Hub using access token
                     // withCredentials([string(credentialsId: 'docker-access-token', variable: 'DOCKER_ACCESS_TOKEN')]) {
