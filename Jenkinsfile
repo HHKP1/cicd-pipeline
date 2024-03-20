@@ -30,15 +30,16 @@ pipeline {
         }
         stage('Build...') {
             steps {
-                sh "ls -la && pwd"
-                sh 'npm config ls'
-                sh 'npm install'
+                script {
+                    buildStep()
+                }
             }
         }
         stage('Test...') {
             steps {
-                sh 'npm config ls'
-                sh 'npm test'
+                script {
+                    testStep()
+                }
             }
         }
         stage('Docker build...') {
