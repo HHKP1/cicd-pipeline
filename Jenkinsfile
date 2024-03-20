@@ -13,10 +13,8 @@ pipeline {
             steps {
                 // Checkout the multibranch Git repository
                 def branch = env.BRANCH_NAME == 'dev' ? 'dev' : 'main'
-                script {
-                    checkoutStep(this, branch, 'https://github.com/HHKP1/cicd-pipeline.git')
+                checkoutStep(this, branch, 'https://github.com/HHKP1/cicd-pipeline.git')
                     // checkout([$class: 'GitSCM', branches: [[name: 'main'], [name: 'dev']], userRemoteConfigs: [[url: 'https://github.com/HHKP1/cicd-pipeline.git']]])
-                }
             }
         }
         stage ("lint Dockerfile...") {
