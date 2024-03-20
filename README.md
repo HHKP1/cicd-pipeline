@@ -1,2 +1,2 @@
 # cicd-pipeline
-# test-pipe-main
+# test-pipes-main
