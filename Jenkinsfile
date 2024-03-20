@@ -47,15 +47,17 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == 'main') {
                         sh "mv src/red_logo.svg src/logo.svg"
+                        dockerBuildStep(this, 'Dockerfile.tpl', 'nodemain', 'v1.0', '7.8-alpine', 3000)
                     } else if (env.BRANCH_NAME == 'dev' ) {
                         sh "mv src/orange_logo.svg src/logo.svg"
+                        dockerBuildStep(this, 'Dockerfile.tpl', 'nodedev', 'v1.0', '7.8-alpine', 3001)
                     }
-                    // Login to Docker Hub using access token
-                    withCredentials([string(credentialsId: 'docker-access-token', variable: 'DOCKER_ACCESS_TOKEN')]) {
-                        sh "echo ${DOCKER_ACCESS_TOKEN} | docker login --username hhkp --password-stdin"
-                        sh "docker build -t hhkp/node${env.BRANCH_NAME}:${env.imageTag} ."
-                        sh "docker push hhkp/node${env.BRANCH_NAME}:${env.imageTag}"
-                    }
+                    // // Login to Docker Hub using access token
+                    // withCredentials([string(credentialsId: 'docker-access-token', variable: 'DOCKER_ACCESS_TOKEN')]) {
+                    //     sh "echo ${DOCKER_ACCESS_TOKEN} | docker login --username hhkp --password-stdin"
+                    //     sh "docker build -t hhkp/node${env.BRANCH_NAME}:${env.imageTag} ."
+                    //     sh "docker push hhkp/node${env.BRANCH_NAME}:${env.imageTag}"
+                    // }
                 }
             }
         }
