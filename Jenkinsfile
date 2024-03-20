@@ -47,7 +47,6 @@ pipeline {
             steps {
                 script {
                     if (env.BRANCH_NAME == 'main') {
-                        sh "mv src/red_logo.svg src/logo.svg"
                         dockerBuildStep(this, 'hhkp', 'main_container', 'Dockerfile.tpl', 'nodemain', 'v1.0', '7.8.0-alpine', 3000)
                     } else if (env.BRANCH_NAME == 'dev' ) {
                         sh "mv src/orange_logo.svg src/logo.svg"
