@@ -48,41 +48,40 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == 'main') {
                         sh "mv src/red_logo.svg src/logo.svg"
-                        dockerBuildStep(this, 'hhkp', 'Dockerfile.tpl', 'nodemain', 'v1.0', '7.8.0-alpine', 3000)
+                        dockerBuildStep(this, 'hhkp', 'main_container', 'Dockerfile.tpl', 'nodemain', 'v1.0', '7.8.0-alpine', 3000)
                     } else if (env.BRANCH_NAME == 'dev' ) {
                         sh "mv src/orange_logo.svg src/logo.svg"
-                        dockerBuildStep(this, 'hhkp', 'Dockerfile.tpl', 'nodedev', 'v1.0', '7.8.0-alpine', 3001)
+                        dockerBuildStep(this, 'hhkp', 'dev_container', 'Dockerfile.tpl', 'nodedev', 'v1.0', '7.8.0-alpine', 3000)
                     }
-                    // // Login to Docker Hub using access token
-                    // withCredentials([string(credentialsId: 'docker-access-token', variable: 'DOCKER_ACCESS_TOKEN')]) {
-                    //     sh "echo ${DOCKER_ACCESS_TOKEN} | docker login --username hhkp --password-stdin"
-                    //     sh "docker build -t hhkp/node${env.BRANCH_NAME}:${env.imageTag} ."
-                    //     sh "docker push hhkp/node${env.BRANCH_NAME}:${env.imageTag}"
-                    // }
                 }
             }
         }
         stage('Deploy...') {
             steps {
                 script {
-                    def dockerImage = "nodemain:${env.imageTag}"
-                    def containerName = "main_container"
-                    
-                    if (env.BRANCH_NAME == 'dev') {
-                        dockerImage = "nodedev:${env.imageTag}"
-                        containerName = "dev_container"
+                    if (env.BRANCH_NAME == 'main') {
+                        deployStep(this, 'hhkp', 'nodemain', 'v1.0', 'main_container', 3000, 3000)
+                    } else if (env.BRANCH_NAME == 'dev' ) {
+                        deployStep(this, 'hhkp', 'nodedev', 'v1.0', 'dev_container', 3001, 3000)
                     }
+                    // def dockerImage = "nodemain:${env.imageTag}"
+                    // def containerName = "main_container"
                     
-                    // Stop and remove existing container
-                    sh "docker stop ${containerName} || true"
-                    sh "docker rm ${containerName} || true"
+                    // if (env.BRANCH_NAME == 'dev') {
+                    //     dockerImage = "nodedev:${env.imageTag}"
+                    //     containerName = "dev_container"
+                    // }
                     
-                    // Run the application in Docker container
-                    if (env.BRANCH_NAME == 'dev') {
-                        sh "docker run -d --expose 3001 -p 3001:3000 --name ${containerName} hhkp/${dockerImage}"
-                    } else {
-                        sh "docker run -d --expose 3000 -p 3000:3000 --name ${containerName} hhkp/${dockerImage}"
-                    }
+                    // // Stop and remove existing container
+                    // sh "docker stop ${containerName} || true"
+                    // sh "docker rm ${containerName} || true"
+                    
+                    // // Run the application in Docker container
+                    // if (env.BRANCH_NAME == 'dev') {
+                    //     sh "docker run -d --expose 3001 -p 3001:3000 --name ${containerName} hhkp/${dockerImage}"
+                    // } else {
+                    //     sh "docker run -d --expose 3000 -p 3000:3000 --name ${containerName} hhkp/${dockerImage}"
+                    // }
                 }
             }
         }
