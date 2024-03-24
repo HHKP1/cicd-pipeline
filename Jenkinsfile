@@ -46,13 +46,20 @@ pipeline {
         stage('Docker build...') {
             steps {
                 script {
-                    if (env.BRANCH_NAME == 'main') {
-                        dockerBuildStep(this, 'hhkp', 'main_container', 'Dockerfile.tpl', 'nodemain', 'v1.0', '7.8.0-alpine', 3000)
-                    } else if (env.BRANCH_NAME == 'dev' ) {
-                        sh "mv src/orange_logo.svg src/logo.svg"
-                        dockerBuildStep(this, 'hhkp', 'dev_container', 'Dockerfile.tpl', 'nodedev', 'v1.0', '7.8.0-alpine', 3000)
-                    }
+                    def imageName = env.BRANCH_NAME == 'dev' ? 'nodedev' : 'nodemain'
+                    def containerName = env.BRANCH_NAME == 'dev' ? 'dev_container' : 'main_container'
+                    def logoName = env.BRANCH_NAME == 'dev' ? 'orange_logo' : 'red_logo'
+                    sh "mv src/${logoName}.svg src/logo.svg"
+                    // if (env.BRANCH_NAME == 'main') {
+                    //     imageName = nodemain
+                    //     containerName = main_container
+                    // } else if (env.BRANCH_NAME == 'dev' ) {
+                    //     imageName = nodedev
+                    //     containerName = dev_container
+                    //     sh "mv src/orange_logo.svg src/logo.svg"
+                    // }
                 }
+                dockerBuildStep(this, 'hhkp', containerName, 'Dockerfile.tpl', imageName, 'v1.0', '7.8.0-alpine', 3000)
             }
         }
         stage('Deploy...') {
