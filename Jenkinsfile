@@ -60,7 +60,7 @@ pipeline {
                     //     sh "mv src/orange_logo.svg src/logo.svg"
                     // }
                 }
-                dockerBuildStep(this, 'hhkp', containerName, 'Dockerfile.tpl', imageName, 'v1.0', '7.8.0-alpine', 3000)
+                dockerBuildStep(this, 'hhkp', containerName, imageName, 'v1.0')
             }
         }
         stage('Deploy...') {
