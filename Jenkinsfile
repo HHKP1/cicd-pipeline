@@ -66,11 +66,14 @@ pipeline {
         stage('Deploy...') {
             steps {
                 script {
-                    if (env.BRANCH_NAME == 'main') {
-                        deployStep(this, 'hhkp', 'nodemain', 'v1.0', 'main_container', 3000, 3000)
-                    } else if (env.BRANCH_NAME == 'dev' ) {
-                        deployStep(this, 'hhkp', 'nodedev', 'v1.0', 'dev_container', 3001, 3000)
-                    }
+                    def imageName = env.BRANCH_NAME == 'dev' ? 'nodedev' : 'nodemain'
+                    def containerName = env.BRANCH_NAME == 'dev' ? 'dev_container' : 'main_container'
+                    def hostPort = env.BRANCH_NAME == 'dev' ? 3001 : 3000
+                    deployStep(this, 'hhkp', imageName, 'v1.0', containerName, hostPort, 3000)
+                    // if (env.BRANCH_NAME == 'main') {
+                    // } else if (env.BRANCH_NAME == 'dev' ) {
+                    //     deployStep(this, 'hhkp', 'nodedev', 'v1.0', 'dev_container', 3001, 3000)
+                    // }
                     // def dockerImage = "nodemain:${env.imageTag}"
                     // def containerName = "main_container"
                     
