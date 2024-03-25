@@ -53,21 +53,21 @@ pipeline {
             steps {
                 script {
                     sh "mv src/${logoName}.svg src/logo.svg"
-                    dockerBuildStep(this, 'hhkp', containerName, imageName, 'v1.0')
+                    dockerBuildStep(this, registry, containerName, imageName, 'v1.0')
                 }
             }
         }
         stage('Deploy...') {
             steps {
                 script {
-                    deployStep(this, environment.registry, imageName, 'v1.0', containerName, hostPort, 3000)
+                    deployStep(this, registry, imageName, 'v1.0', containerName, hostPort, 3000)
                 }
             }
         }
         stage('Scanning for vulnerabilities...'){
             steps {
                 script{
-                    def vulnerabilities = sh(script: "trivy image --exit-code 0 --severity HIGH,MEDIUM,LOW --no-progress hhkp/${imageName}:${imageTag}", returnStdout: true).trim()
+                    def vulnerabilities = sh(script: "trivy image --exit-code 0 --severity HIGH,MEDIUM,LOW --no-progress ${registry}/${imageName}:${imageTag}", returnStdout: true).trim()
                     writeFile file: 'vulnerabilities.txt', text: vulnerabilities
                 }
             }
