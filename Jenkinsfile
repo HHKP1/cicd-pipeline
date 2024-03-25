@@ -51,16 +51,8 @@ pipeline {
                     def containerName = env.BRANCH_NAME == 'dev' ? 'dev_container' : 'main_container'
                     def logoName = env.BRANCH_NAME == 'dev' ? 'orange_logo' : 'red_logo'
                     sh "mv src/${logoName}.svg src/logo.svg"
-                    // if (env.BRANCH_NAME == 'main') {
-                    //     imageName = nodemain
-                    //     containerName = main_container
-                    // } else if (env.BRANCH_NAME == 'dev' ) {
-                    //     imageName = nodedev
-                    //     containerName = dev_container
-                    //     sh "mv src/orange_logo.svg src/logo.svg"
-                    // }
+                    dockerBuildStep(this, 'hhkp', containerName, imageName, 'v1.0')
                 }
-                dockerBuildStep(this, 'hhkp', containerName, imageName, 'v1.0')
             }
         }
         stage('Deploy...') {
