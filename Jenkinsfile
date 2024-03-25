@@ -12,10 +12,9 @@ pipeline {
         stage('Checkout SCM...') {
             steps {
                 // Checkout the multibranch Git repository
-		script {
+		        script {
                     def branch = env.BRANCH_NAME == 'dev' ? 'dev' : 'main'
                     checkoutStep(this, branch, 'https://github.com/HHKP1/cicd-pipeline.git')
-                      // checkout([$class: 'GitSCM', branches: [[name: 'main'], [name: 'dev']], userRemoteConfigs: [[url: 'https://github.com/HHKP1/cicd-pipeline.git']]])
                 }
             }
         }
@@ -62,28 +61,6 @@ pipeline {
                     def containerName = env.BRANCH_NAME == 'dev' ? 'dev_container' : 'main_container'
                     def hostPort = env.BRANCH_NAME == 'dev' ? 3001 : 3000
                     deployStep(this, 'hhkp', imageName, 'v1.0', containerName, hostPort, 3000)
-                    // if (env.BRANCH_NAME == 'main') {
-                    // } else if (env.BRANCH_NAME == 'dev' ) {
-                    //     deployStep(this, 'hhkp', 'nodedev', 'v1.0', 'dev_container', 3001, 3000)
-                    // }
-                    // def dockerImage = "nodemain:${env.imageTag}"
-                    // def containerName = "main_container"
-                    
-                    // if (env.BRANCH_NAME == 'dev') {
-                    //     dockerImage = "nodedev:${env.imageTag}"
-                    //     containerName = "dev_container"
-                    // }
-                    
-                    // // Stop and remove existing container
-                    // sh "docker stop ${containerName} || true"
-                    // sh "docker rm ${containerName} || true"
-                    
-                    // // Run the application in Docker container
-                    // if (env.BRANCH_NAME == 'dev') {
-                    //     sh "docker run -d --expose 3001 -p 3001:3000 --name ${containerName} hhkp/${dockerImage}"
-                    // } else {
-                    //     sh "docker run -d --expose 3000 -p 3000:3000 --name ${containerName} hhkp/${dockerImage}"
-                    // }
                 }
             }
         }
