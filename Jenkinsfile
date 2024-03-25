@@ -12,9 +12,9 @@ pipeline {
         stage('Checkout SCM...') {
             steps {
                 // Checkout the multibranch Git repository
-                script {
-                    checkoutStep(this, 'https://github.com/HHKP1/cicd-pipeline.git')
-                    // checkout([$class: 'GitSCM', branches: [[name: 'main'], [name: 'dev']], userRemoteConfigs: [[url: 'https://github.com/HHKP1/cicd-pipeline.git']]])
+		        script {
+                    def branch = env.BRANCH_NAME == 'dev' ? 'dev' : 'main'
+                    checkoutStep(this, branch, 'https://github.com/HHKP1/cicd-pipeline.git')
                 }
             }
         }
@@ -46,41 +46,21 @@ pipeline {
         stage('Docker build...') {
             steps {
                 script {
-                    if (env.BRANCH_NAME == 'main') {
-                        dockerBuildStep(this, 'hhkp', 'main_container', 'Dockerfile.tpl', 'nodemain', 'v1.0', '7.8.0-alpine', 3000)
-                    } else if (env.BRANCH_NAME == 'dev' ) {
-                        sh "mv src/orange_logo.svg src/logo.svg"
-                        dockerBuildStep(this, 'hhkp', 'dev_container', 'Dockerfile.tpl', 'nodedev', 'v1.0', '7.8.0-alpine', 3000)
-                    }
+                    def imageName = env.BRANCH_NAME == 'dev' ? 'nodedev' : 'nodemain'
+                    def containerName = env.BRANCH_NAME == 'dev' ? 'dev_container' : 'main_container'
+                    def logoName = env.BRANCH_NAME == 'dev' ? 'orange_logo' : 'red_logo'
+                    sh "mv src/${logoName}.svg src/logo.svg"
+                    dockerBuildStep(this, 'hhkp', containerName, imageName, 'v1.0')
                 }
             }
         }
         stage('Deploy...') {
             steps {
                 script {
-                    if (env.BRANCH_NAME == 'main') {
-                        deployStep(this, 'hhkp', 'nodemain', 'v1.0', 'main_container', 3000, 3000)
-                    } else if (env.BRANCH_NAME == 'dev' ) {
-                        deployStep(this, 'hhkp', 'nodedev', 'v1.0', 'dev_container', 3001, 3000)
-                    }
-                    // def dockerImage = "nodemain:${env.imageTag}"
-                    // def containerName = "main_container"
-                    
-                    // if (env.BRANCH_NAME == 'dev') {
-                    //     dockerImage = "nodedev:${env.imageTag}"
-                    //     containerName = "dev_container"
-                    // }
-                    
-                    // // Stop and remove existing container
-                    // sh "docker stop ${containerName} || true"
-                    // sh "docker rm ${containerName} || true"
-                    
-                    // // Run the application in Docker container
-                    // if (env.BRANCH_NAME == 'dev') {
-                    //     sh "docker run -d --expose 3001 -p 3001:3000 --name ${containerName} hhkp/${dockerImage}"
-                    // } else {
-                    //     sh "docker run -d --expose 3000 -p 3000:3000 --name ${containerName} hhkp/${dockerImage}"
-                    // }
+                    def imageName = env.BRANCH_NAME == 'dev' ? 'nodedev' : 'nodemain'
+                    def containerName = env.BRANCH_NAME == 'dev' ? 'dev_container' : 'main_container'
+                    def hostPort = env.BRANCH_NAME == 'dev' ? 3001 : 3000
+                    deployStep(this, 'hhkp', imageName, 'v1.0', containerName, hostPort, 3000)
                 }
             }
         }
