@@ -77,7 +77,7 @@ pipeline {
                     string(name: 'REGISTRY', value: registry),
                     string(name: 'IMG_NAME', value: imageName),
                     string(name: 'CONTAINER_NAME', value: containerName),
-                    [$class: 'IntegerParameterValue', name: 'HOST_PORT', value: hostPort]
+                    string(name: 'HOST_PORT', value: hostPort)
                 ]
             }
         }
