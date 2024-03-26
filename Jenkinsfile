@@ -57,13 +57,6 @@ pipeline {
                 }
             }
         }
-        stage('Deploy...') {
-            steps {
-                script {
-                    deployStep(this, registry, imageName, 'v1.0', containerName, hostPort, 3000)
-                }
-            }
-        }
         stage('Scanning for vulnerabilities...'){
             steps {
                 script{
@@ -77,6 +70,11 @@ pipeline {
         success {
             archiveArtifacts 'hadolint_lint.txt'
             archiveArtifacts 'vulnerabilities.txt'
+            
+            script {
+                def deployBranch = branch == 'dev' ? 'Deploy_to_dev' : 'Deploy_to_main'
+                build job: deployBranch, parameters[string(name: 'REGISTRY', value: registry), string(name: 'IMG_NAME', value: imageName), string(name: 'CONTAINER_NAME', value: containerName), int(name: 'HOST_PORT', value: hostPort)]
+            }
         }
     }
 }
