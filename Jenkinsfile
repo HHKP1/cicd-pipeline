@@ -73,7 +73,7 @@ pipeline {
             
             script {
                 def deployBranch = branch == 'dev' ? 'Deploy_to_dev' : 'Deploy_to_main'
-                build job: deployBranch, parameters[string(name: 'REGISTRY', value: registry), string(name: 'IMG_NAME', value: imageName), string(name: 'CONTAINER_NAME', value: containerName), int(name: 'HOST_PORT', value: hostPort)]
+                build job: deployBranch, parameters[string(name: 'REGISTRY', value: registry), string(name: 'IMG_NAME', value: imageName), string(name: 'CONTAINER_NAME', value: containerName), [$class: 'IntegerParameterValue', name: 'HOST_PORT', value: hostPort]]
             }
         }
     }
